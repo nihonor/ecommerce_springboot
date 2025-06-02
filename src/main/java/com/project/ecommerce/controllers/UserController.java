@@ -108,14 +108,4 @@ public class UserController {
 
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String,String>> handleValidationExceptions(
-            MethodArgumentNotValidException exception
-    ){
-        var errors=new HashMap<String,String>();
-        exception.getBindingResult().getAllErrors().forEach((error)->{
-            errors.put(error.getDefaultMessage(),error.getDefaultMessage());
-        });
-        return ResponseEntity.badRequest().body(errors);
-    }
 }
