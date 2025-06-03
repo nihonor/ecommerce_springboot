@@ -4,7 +4,6 @@ import com.project.ecommerce.dtos.ChangePasswordRequest;
 import com.project.ecommerce.dtos.RegisterUserRequest;
 import com.project.ecommerce.dtos.UpdateUserRequest;
 import com.project.ecommerce.dtos.UserDto;
-import com.project.ecommerce.entities.User;
 import com.project.ecommerce.mapper.UserMapper;
 import com.project.ecommerce.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -12,9 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
@@ -50,9 +47,14 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(
+    public ResponseEntity<?> registerUser(
             UriComponentsBuilder uriBuilder,
             @Valid @RequestBody RegisterUserRequest request){
+       if(userRepository.existsByEmail(request.getEmail())){
+           return ResponseEntity.badRequest().body(
+                   Map.of("email","Email already register")
+           );
+       };
         var user=userMapper.toEntity(request);
        userRepository.save(user);
 
