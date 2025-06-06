@@ -14,16 +14,15 @@ import java.util.Collections;
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        var user=userRepository.findByEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException("Email Not Found")
-        );
+        var user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("Email Not Found"));
 
         return new User(
-                user.getPassword(),
                 user.getEmail(),
-                Collections.emptyList()
-        );
+                user.getPassword(),
+                Collections.emptyList());
     }
 }
