@@ -1,7 +1,9 @@
 package com.project.ecommerce.controllers;
 
 
+import com.project.ecommerce.dtos.JwtResponse;
 import com.project.ecommerce.repositories.UserRepository;
+import com.project.ecommerce.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,18 +21,27 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(
+    public ResponseEntity<JwtResponse> login(
             @Valid @RequestBody LoginRequest loginRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginRequest.getEmail(), loginRequest.getPassword()
         ));
-        return ResponseEntity.ok().build();
+        var token=jwtService.generateToken(loginRequest.getEmail());
+        return ResponseEntity.ok(new JwtResponse(token));
 
     }
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Void> handleBadCredentialsException(){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @PostMapping("/validate")
+    public boolean validateToken(@RequestHeader("Authorization") String authHeader) {
+        var token=authHeader.replace("Bearer ", "");
+        return jwtService.validateToken(token);
+
     }
 }
